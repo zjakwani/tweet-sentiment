@@ -11,10 +11,10 @@ class ApiHandler(Resource):
         consumerSecret = process.env.consumerSecret
         accessToken = process.env.accessToken
         accessTokenSecret = process.env.accessTokenSecret
-        auth = tweepy.OAuthHandler(
-            consumer_key=consumerKey, consumer_secret=consumerSecret
-        )
-        auth.set_access_token(accessToken, accessTokenSecret)
+        # auth = tweepy.OAuthHandler(
+        #     consumer_key=consumerKey, consumer_secret=consumerSecret
+        # )
+        # auth.set_access_token(accessToken, accessTokenSecret)
         parser = reqparse.RequestParser()
         parser.add_argument("keyword", type=str)
         parser.add_argument("n", type=str)
