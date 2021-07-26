@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 import tweepy
+import os
 
 
 class ApiHandler(Resource):
@@ -7,14 +8,15 @@ class ApiHandler(Resource):
         return {"resultStatus": "SUCCESS", "message": "Hello Api Handle"}
 
     def post(self):
-        consumerKey = process.env.consumerKey
-        consumerSecret = process.env.consumerSecret
-        accessToken = process.env.accessToken
-        accessTokenSecret = process.env.accessTokenSecret
-        # auth = tweepy.OAuthHandler(
-        #     consumer_key=consumerKey, consumer_secret=consumerSecret
-        # )
-        # auth.set_access_token(accessToken, accessTokenSecret)
+        consumerKey = str(os.environ.get("consumerKey"))
+        consumerSecret = str(os.environ.get("consumerSecret"))
+        accessToken = str(os.environ.get("accessToken"))
+        accessTokenSecret = str(os.environ.get("accessTokenSecret"))
+        auth = tweepy.OAuthHandler(
+            consumer_key=consumerKey, consumer_secret=consumerSecret
+        )
+        auth.set_access_token(accessToken, accessTokenSecret)
+
         parser = reqparse.RequestParser()
         parser.add_argument("keyword", type=str)
         parser.add_argument("n", type=str)
@@ -22,27 +24,26 @@ class ApiHandler(Resource):
 
         args = parser.parse_args()
 
-        print(args)
-        ret_msg = args["message"]
+        # ret_msg = args["message"]
 
-        if ret_msg:
-            message = "Your Message Requested: {}".format(ret_msg)
-        else:
-            message = "No Msg"
+        # if ret_msg:
+        #     message = "Your Message Requested: {}".format(ret_msg)
+        # else:
+        #     message = "No Msg"
 
-        final_ret = {"status": "Success", "message": message}
+        # final_ret = {"status": "Success", "message": consumerKey}
 
-        # api = tweepy.API(auth)
+        api = tweepy.API(auth)
 
-        # search = args["keyword"]
-        # n = int(args["n"])
+        search = args["keyword"]
+        n = int(args["n"])
 
-        # tweets = tweepy.Cursor(api.search, q=search, result_type="recent").items(n)
+        tweets = tweepy.Cursor(api.search, q=search, result_type="recent").items(n)
 
-        # tweetarr = []
-        # for t in tweets:
-        #     tweetarr.append({"handle": t.user.screen_name, "text": t.text})
+        tweetarr = []
+        for t in tweets:
+            tweetarr.append({"handle": t.user.screen_name, "text": t.text})
 
-        # final_ret = tweetarr
+        final_ret = tweetarr
 
         return final_ret
