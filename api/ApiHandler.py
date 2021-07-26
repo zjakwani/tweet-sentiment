@@ -2,6 +2,9 @@ from flask_restful import Resource, reqparse
 import tweepy
 import os
 from textblob import TextBlob
+import nltk
+
+nltk.download("punkt")
 
 
 class ApiHandler(Resource):
