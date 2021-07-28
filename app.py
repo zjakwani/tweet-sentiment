@@ -9,4 +9,4 @@ app = Flask(__name__)
 api = Api(app)
 
 
-api.add_resource(ApiHandler, "/flask/hello")
+api.add_resource(ApiHandler, "/")

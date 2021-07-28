@@ -3,8 +3,12 @@ import tweepy
 import os
 from textblob import TextBlob
 import nltk
+from nltk import FreqDist
+from nltk.corpus import stopwords
 
-nltk.download("punkt")
+
+# nltk.download("punkt")
+# nltk.download("stopwords")
 
 
 class ApiHandler(Resource):
@@ -31,28 +35,37 @@ class ApiHandler(Resource):
         n = int(args["n"])
 
         tweets = tweepy.Cursor(
-            api.search, q=search, result_type="recent", lang="en"
+            api.search, q=search, result_type="recent", lang="en", tweet_mode="extended"
         ).items(n)
 
         tweetarr = []
+        fulltxt = ""
         for t in tweets:
-            blob = TextBlob(t.text)
-            polarity = blob.sentiment.polarity
-            sentiment = ""
+            text = ""
+            try:
+                text = t.retweeted_status.full_text
+            except AttributeError: 
+                text = t.full_text
+            polarity = TextBlob(text).sentiment.polarity
+            sentiment = "neutral"
             if polarity > 0:
                 sentiment = "positive"
-            elif polarity < 0:
+            if polarity < 0:
                 sentiment = "negative"
-            else:
-                sentiment = "neutral"
             tweetarr.append(
                 {
                     "handle": t.user.screen_name,
-                    "text": t.text,
+                    "text": text,
                     "polarity": polarity,
                     "sentiment": sentiment,
-                    "words": blob.words[0],
                 }
             )
+            fulltxt += text
 
-        return tweetarr
+        twitter_filter = ["RT", ".", "!", "?" ",", "https", "’", "'s"]
+        full_filter = set(twitter_filter + stopwords.words("english"))
+        lower_words = [x.lower() for x in TextBlob(fulltxt).words]
+        full_words = list(filter(lambda x: x not in full_filter, lower_words))
+        common = FreqDist(full_words).most_common(5)
+
+        return {"tweetarr": tweetarr, "common": common}
