@@ -1,16 +1,15 @@
 from flask_restful import Resource, reqparse
+from flask import jsonify
 import tweepy
 import os
 from textblob import TextBlob
-import nltk
 from nltk import FreqDist
 from nltk.corpus import stopwords
+from dotenv import load_dotenv
 
 
-# nltk.download("punkt")
-# nltk.download("stopwords")
 
-
+load_dotenv()
 class ApiHandler(Resource):
     def get(self):
         return {"resultStatus": "SUCCESS", "message": "Hello Api Handle"}
@@ -68,4 +67,4 @@ class ApiHandler(Resource):
         full_words = list(filter(lambda x: x not in full_filter, lower_words))
         common = FreqDist(full_words).most_common(5)
 
-        return {"tweetarr": tweetarr, "common": common}
+        return jsonify({"tweets": tweetarr, "frequent": common})
